@@ -1,10 +1,6 @@
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from apps.events.models import Event, EventRegistration
 from apps.users.serializers import UserShortSerializer
-
-
-User = get_user_model()
 
 
 class EventSerializer(serializers.ModelSerializer):
