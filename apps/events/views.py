@@ -1,6 +1,6 @@
 from typing import Optional
 from django.contrib.auth import get_user_model
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from apps.events.models import Event, EventRegistration
 from apps.events.serializers import EventSerializer, EventRegistrationSerializer
 from apps.users.serializers import UserShortSerializer
+from apps.events.tasks import send_registration_email
 
 
 User = get_user_model()
@@ -44,6 +45,8 @@ class EventViewSet(viewsets.ModelViewSet):
             return Response(
                 {"detail": "User is already registered for this event."}, status=status.HTTP_400_BAD_REQUEST
             )
+        # send email asynchronously
+        transaction.on_commit(lambda: send_registration_email.delay(target_user.id, event.id))
         data = self.get_serializer(registration, context={"request": request}).data
         return Response(data, status=status.HTTP_201_CREATED)
 
