@@ -1,6 +1,6 @@
-## Event Management — Docker, Tests, API
+# Event Management — Docker, Tests, API
 
-# Installing using GitHub
+## Installing using GitHub
 ```
 git clone https://github.com/Paul-Starodub/event_management
 cd event_management
