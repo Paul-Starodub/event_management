@@ -32,4 +32,3 @@ class LogoutAPIView(APIView):
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserShortSerializer
-    permission_classes = [permissions.AllowAny]

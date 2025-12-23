@@ -44,10 +44,3 @@ class AuthApiTests(APITestCase):
         me = self.client.get(me_url)
         self.assertEqual(me.status_code, status.HTTP_200_OK)
         self.assertEqual(me.data["username"], user.username)
-
-    def test_user_viewset_list_is_public(self) -> None:
-        UserFactory.create_batch(3)
-        url = reverse("users:all-users-list")
-        res = self.client.get(url)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertGreaterEqual(len(res.data), 3)
