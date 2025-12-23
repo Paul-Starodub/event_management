@@ -4,6 +4,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
+from apps.events.filters import EventFilter
 from apps.events.models import Event, EventRegistration
 from apps.events.serializers import EventSerializer, BulkParticipantsSerializer
 from apps.users.serializers import UserShortSerializer
@@ -15,6 +16,7 @@ User = get_user_model()
 
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.select_related("organizer")
+    filterset_class = EventFilter
 
     def get_serializer_class(self):
         match self.action:
