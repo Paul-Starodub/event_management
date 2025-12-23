@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -30,7 +30,7 @@ class EventViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer: EventSerializer) -> None:
         serializer.save(organizer=self.request.user)
 
-    @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
+    @action(detail=True, methods=["post"])
     def register(self, request: Request, pk: int | None = None) -> Response:
         event: Event = self.get_object()
         serializer = self.get_serializer(data=request.data)
@@ -57,7 +57,7 @@ class EventViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED if to_create_ids else status.HTTP_200_OK,
         )
 
-    @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
+    @action(detail=True, methods=["post"])
     def unregister(self, request: Request, pk: int | None = None) -> Response:
         event: Event = self.get_object()
         serializer = self.get_serializer(data=request.data)
@@ -77,7 +77,7 @@ class EventViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
-    @action(detail=True, methods=["get"], permission_classes=[permissions.IsAuthenticatedOrReadOnly])
+    @action(detail=True, methods=["get"])
     def participants(self, request: Request, pk: int | None = None) -> Response:
         event: Event = self.get_object()
         users_qs = User.objects.filter(event_registrations__event=event).distinct()
