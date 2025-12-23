@@ -17,7 +17,7 @@ class Event(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Event Last Update Date and Time")
 
     class Meta:
-        ordering = ("date", "title")
+        ordering = ("created_at",)
 
     def __str__(self) -> str:
         return f"{self.title} @ {self.location} on {self.date:%Y-%m-%d %H:%M}"
@@ -31,7 +31,7 @@ class EventRegistration(models.Model):
     registered_at = models.DateTimeField(auto_now_add=True, verbose_name="Registration Date and Time")
 
     class Meta:
-        unique_together = ("event", "participant")
+        constraints = [models.UniqueConstraint(fields=("event", "participant"), name="unique_event_participant")]
         ordering = ["-registered_at"]
 
     def __str__(self) -> str:
