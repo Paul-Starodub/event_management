@@ -1,5 +1,14 @@
 ## Event Management — Docker, Tests, API
 
+# Installing using GitHub
+```
+git clone https://github.com/Paul-Starodub/event_management
+cd event_management
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
 Stack: Django 6, DRF, JWT (SimpleJWT), Postgres, Redis, Celery.  
 Seed data: created automatically on `web` startup (3 users and 5 events).
 
