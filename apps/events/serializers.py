@@ -28,9 +28,10 @@ class BulkParticipantsSerializer(serializers.Serializer):
     )
 
     def validate(self, attrs: dict) -> dict:
-        ids_set = set(attrs["participant_ids"])
-        existing_ids = set(User.objects.filter(id__in=ids_set).values_list("id", flat=True))
+        ids_set: set[int] = set(attrs["participant_ids"])
+        existing_ids: set[int] = set(User.objects.filter(id__in=ids_set).values_list("id", flat=True))
         if len(existing_ids) != len(ids_set):
             missing = sorted(ids_set - existing_ids)
             raise serializers.ValidationError({"participant_ids": f"Users not found: {missing}"})
+        attrs["participant_ids"] = sorted(existing_ids)
         return attrs
