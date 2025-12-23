@@ -34,22 +34,17 @@ class EventViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         participant_ids: list[int] = serializer.validated_data["participant_ids"]
-
-        with transaction.atomic():
-            already_registered_ids: set[int] = set(
-                EventRegistration.objects.filter(event=event, participant_id__in=participant_ids).values_list(
-                    "participant_id", flat=True
-                )
+        already_registered_ids: set[int] = set(
+            EventRegistration.objects.filter(event=event, participant_id__in=participant_ids).values_list(
+                "participant_id", flat=True
             )
-            to_create_ids: list[int] = [uid for uid in participant_ids if uid not in already_registered_ids]
+        )
+        to_create_ids: list[int] = [uid for uid in participant_ids if uid not in already_registered_ids]
+        if to_create_ids:
             EventRegistration.objects.bulk_create(
                 [EventRegistration(event=event, participant_id=uid) for uid in to_create_ids], ignore_conflicts=True
             )
-
-        # send emails only for newly created
-        if to_create_ids:
             transaction.on_commit(lambda: [send_registration_email.delay(uid, event.id) for uid in to_create_ids])
-
         return Response(
             {
                 "event_id": event.id,
@@ -66,12 +61,9 @@ class EventViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         participant_ids: list[int] = serializer.validated_data["participant_ids"]
-
-        with transaction.atomic():
-            qs = EventRegistration.objects.filter(event=event, participant_id__in=participant_ids)
-            existing_ids: set[int] = set(qs.values_list("participant_id", flat=True))
-            deleted_count, _ = qs.delete()
-
+        qs = EventRegistration.objects.filter(event=event, participant_id__in=participant_ids)
+        existing_ids: set[int] = set(qs.values_list("participant_id", flat=True))
+        deleted_count, _ = qs.delete()
         not_found_ids = sorted(set(participant_ids) - existing_ids)
         return Response(
             {
